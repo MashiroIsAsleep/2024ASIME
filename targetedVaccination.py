@@ -4,11 +4,11 @@ from tqdm import tqdm
 
 def main():
     # Run the simulation using the top 5% super spreaders method
-    trials = 1  
+    trials = 1
     result = run_super_spreaders(trials)
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
-    #print("Number of people infected each day (example from first trial):")
-    #print(result[1])
+    print("Number of people infected each day (example from first trial):")
+    print(result[1])
     print(f"Average number of infected people during the stable phase: {result[2]}")
 
     # Run the simulation using the random vaccination method
@@ -16,10 +16,9 @@ def main():
     vaccination_percentage = 0.5
     result = run_random_vaccination(trials, vaccination_percentage)
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
-    #print("Number of people infected each day (example from first trial):")
-    #print(result[1])
+    print("Number of people infected each day (example from first trial):")
+    print(result[1])
     print(f"Average number of infected people during the stable phase: {result[2]}")
-
 
 def run_super_spreaders(trials):
     n = 100
@@ -49,10 +48,10 @@ def run_super_spreaders(trials):
         if infection_counts[-1] == 0:
             end_in_zero_count += 1
         else:
-            stable_infections.append(np.mean(infection_counts[-10:]))
+            stable_infections.append(apply_kalman_filter(infection_counts))
     stable_avg = np.mean(stable_infections) if stable_infections else 0
     return end_in_zero_count / trials * 100, daily_infections, stable_avg
-    
+
 def run_random_vaccination(trials, vaccination_percentage):
     n = 100
     transmission_chance = 0.1
@@ -79,11 +78,9 @@ def run_random_vaccination(trials, vaccination_percentage):
         if infection_counts[-1] == 0:
             end_in_zero_count += 1
         else:
-            stable_infections.append(np.mean(infection_counts[-10:]))
+            stable_infections.append(apply_kalman_filter(infection_counts))
     stable_avg = np.mean(stable_infections) if stable_infections else 0
     return end_in_zero_count / trials * 100, daily_infections, stable_avg
-
-
 
 def run_simulation(transmission_chance, recovery_chance, intercourse_chart,
                    previous_status, n):
@@ -129,6 +126,38 @@ def run_simulation(transmission_chance, recovery_chance, intercourse_chart,
         day += 1
     return infection_counts
 
+def apply_kalman_filter(data):
+    # Kalman filter parameters
+    n_iter = len(data)
+    sz = (n_iter,) # size of array
+    Q = 1e-5 # process variance
+
+    # allocate space for arrays
+    xhat = np.zeros(sz)      # a posteri estimate of x
+    P = np.zeros(sz)         # a posteri error estimate
+    xhatminus = np.zeros(sz) # a priori estimate of x
+    Pminus = np.zeros(sz)    # a priori error estimate
+    K = np.zeros(sz)         # gain or blending factor
+
+    R = 0.1**2 # estimate of measurement variance, change to see effect
+
+    # initial guesses
+    xhat[0] = data[0]
+    P[0] = 1.0
+
+    for k in range(1,n_iter):
+        # time update
+        xhatminus[k] = xhat[k-1]
+        Pminus[k] = P[k-1]+Q
+
+        # measurement update
+        K[k] = Pminus[k]/(Pminus[k]+R)
+        xhat[k] = xhatminus[k]+K[k]*(data[k]-xhatminus[k])
+        P[k] = (1-K[k])*Pminus[k]
+
+    # Return the average of the stable portion of the filtered data
+    stable_data = xhat[-10:]  # assuming last 10 points represent stable state
+    return np.mean(stable_data)
 
 def fill_intercourse_array(array, n, connection_forming_chance):
     for i in range(n):
@@ -138,7 +167,6 @@ def fill_intercourse_array(array, n, connection_forming_chance):
                 ) < connection_forming_chance else 0
             else:
                 array[i][j] = 0
-
 
 def random_fill_status_array(array, n, vaccination_percentage):
     vaccination_count = round(vaccination_percentage * n)
@@ -182,8 +210,7 @@ def fill_super_spreaders(array, n, connect_amount):
     array.fill(0)
     for i in range(super_spreaders_count):
         array[indices_sorted[i]] = 1
-    
-    
+
 def print_array(array, n):
     if isinstance(array, np.ndarray) and array.ndim == 2:
         print("2D Chart:")
@@ -192,7 +219,6 @@ def print_array(array, n):
     else:
         print("Array:")
         print(" ".join(map(str, array)))
-
 
 if __name__ == "__main__":
     main()
