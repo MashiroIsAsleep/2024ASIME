@@ -2,55 +2,23 @@ import random
 import numpy as np
 from tqdm import tqdm
 
-
 def main():
-    
-    #Run the simulation using the top 5% super spreaders method
-    # trials = 100  
-    # print(run_super_spreaders(trials))
-    
-    #Run the simulation using the random vaccination method
-    trials = 100
+    # Run the simulation using the top 5% super spreaders method
+    trials = 1  
+    result = run_super_spreaders(trials)
+    print(f"Percentage of trials ending in zero infections: {result[0]}%")
+    #print("Number of people infected each day (example from first trial):")
+    #print(result[1])
+    print(f"Average number of infected people during the stable phase: {result[2]}")
+
+    # Run the simulation using the random vaccination method
+    trials = 1
     vaccination_percentage = 0.5
-    print(run_random_vaccination(trials, vaccination_percentage))
-    
-    #below are initializations might be useful for later
-    # n = 100
-    # vaccination_percentage = 0.5
-    # transmission_chance = 0.1
-    # recovery_chance = 0.1
-    # connection_forming_chance = .5
-    
-    # previous_status = np.zeros(n, dtype=int)
-    # connect_amount = np.zeros(n, dtype=int)
-    # super_spreaders = np.zeros(n, dtype=int)
-    
-    # intercourse_chart = np.zeros((n, n), dtype=int)
-
-    # Fill the intercourse chart
-    #fill_intercourse_array(intercourse_chart, n, connection_forming_chance)
-    #print_array(intercourse_chart, n)
-
-    # Fill the status array randomly
-    #random_fill_status_array(previous_status, n, vaccination_percentage)
-    #print_array(previous_status, n)
-    
-    #vaccinate the top 5% superspreaders
-    #fill_status_array_with_super_spreaders(previous_status, n, super_spreaders) 
-    #print_array(previous_status, n)
-    
-    # Fill the connect amount array
-    #fill_connect_amount(connect_amount, n, intercourse_chart)
-    #print_array(connect_amount, n)
-
-    # Fill the super spreaders array
-    #fill_super_spreaders(super_spreaders, n, connect_amount)
-    #print_array(super_spreaders, n)
-    
-    # Run the simulation
-    #infection_counts = run_simulation(transmission_chance, recovery_chance,
-    #                                  intercourse_chart, previous_status, n)
-    #print(infection_counts)
+    result = run_random_vaccination(trials, vaccination_percentage)
+    print(f"Percentage of trials ending in zero infections: {result[0]}%")
+    #print("Number of people infected each day (example from first trial):")
+    #print(result[1])
+    print(f"Average number of infected people during the stable phase: {result[2]}")
 
 
 def run_super_spreaders(trials):
@@ -71,12 +39,19 @@ def run_super_spreaders(trials):
     fill_status_array_with_super_spreaders(previous_status, n, super_spreaders)  
     
     end_in_zero_count = 0
+    stable_infections = []
+    daily_infections = None
     for _ in tqdm(range(trials), desc="Running Trials"):
         infection_counts = run_simulation(transmission_chance, recovery_chance,
                                           intercourse_chart, previous_status, n) 
+        if daily_infections is None:
+            daily_infections = infection_counts
         if infection_counts[-1] == 0:
             end_in_zero_count += 1
-    return end_in_zero_count / trials * 100
+        else:
+            stable_infections.append(np.mean(infection_counts[-10:]))
+    stable_avg = np.mean(stable_infections) if stable_infections else 0
+    return end_in_zero_count / trials * 100, daily_infections, stable_avg
     
 def run_random_vaccination(trials, vaccination_percentage):
     n = 100
@@ -94,12 +69,19 @@ def run_random_vaccination(trials, vaccination_percentage):
     random_fill_status_array(previous_status, n, vaccination_percentage)
     
     end_in_zero_count = 0
+    stable_infections = []
+    daily_infections = None
     for _ in tqdm(range(trials), desc="Running Trials"):
         infection_counts = run_simulation(transmission_chance, recovery_chance,
                                           intercourse_chart, previous_status, n) 
+        if daily_infections is None:
+            daily_infections = infection_counts
         if infection_counts[-1] == 0:
             end_in_zero_count += 1
-    return end_in_zero_count / trials * 100
+        else:
+            stable_infections.append(np.mean(infection_counts[-10:]))
+    stable_avg = np.mean(stable_infections) if stable_infections else 0
+    return end_in_zero_count / trials * 100, daily_infections, stable_avg
 
 
 
