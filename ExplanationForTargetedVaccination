@@ -1,0 +1,70 @@
+### Imports
+1. `import random`: For generating random numbers.
+2. `import numpy as np`: For numerical operations, mainly using arrays.
+3. `import pandas as pd`: For handling data in DataFrame and saving results to CSV files.
+4. `from tqdm import tqdm`: For displaying progress bars during loops.
+
+### Main Function
+The `main` function runs two different simulations:
+1. **Super Spreaders Method**: Uses a method where a small percentage of the population is considered super spreaders.
+2. **Random Vaccination Method**: Randomly vaccinates a percentage of the population.
+
+Both methods print out:
+- The percentage of trials ending with zero infections.
+- The average number of infected people during the stable phase.
+
+### Super Spreaders Simulation
+`run_super_spreaders` function:
+1. **Initial Setup**: Initializes variables like population size (`n`), chances for transmission, recovery, and forming connections.
+2. **Arrays Initialization**:
+   - `previous_status`: Tracks infection status.
+   - `connect_amount`: Tracks connection counts for individuals.
+   - `super_spreaders`: Identifies super spreaders.
+   - `intercourse_chart`: Tracks connections between individuals.
+3. **Filling Arrays**:
+   - `fill_intercourse_array`: Fills connection chart based on connection forming chance.
+   - `fill_connect_amount`: Fills the connection count array.
+   - `fill_super_spreaders`: Identifies super spreaders based on connections.
+   - `fill_status_array_with_super_spreaders`: Sets initial infection status with super spreaders.
+4. **Run Trials**: Runs the infection simulation multiple times and returns results.
+
+### Random Vaccination Simulation
+`run_random_vaccination` function:
+1. **Initial Setup**: Similar to `run_super_spreaders`.
+2. **Arrays Initialization**: Similar to `run_super_spreaders`, but without super spreaders.
+3. **Filling Arrays**:
+   - `fill_intercourse_array` and `fill_connect_amount`: Same as above.
+   - `random_fill_status_array`: Randomly vaccinates a percentage of the population and sets initial infection status.
+4. **Run Trials**: Runs the infection simulation multiple times and returns results.
+
+### Running the Trials
+`run_trials` function:
+1. **Trial Loop**: Runs the simulation for a specified number of trials.
+2. **Infection Simulation**: Tracks the infection spread and recovery over days.
+3. **Results Collection**:
+   - Tracks if the trial ended with zero infections.
+   - Collects stable infection counts using a Kalman filter.
+4. **Save Results**: Saves the daily infection counts to a CSV file.
+5. **Return Results**: Returns the percentage of zero infection trials and the average stable infection count.
+
+### Infection Simulation
+`run_simulation` function:
+1. **Day Loop**: Runs the simulation for a maximum number of days.
+2. **Status Update**: Updates infection status based on transmission and recovery chances.
+3. **Check Recovery**: Checks if all individuals have recovered and stops the simulation early if true.
+4. **Return Counts**: Returns daily infection counts.
+
+### Helper Functions
+1. **Kalman Filter**: `apply_kalman_filter` smoothens the infection count data to find stable phase values.
+2. **Array Fillers**:
+   - `fill_intercourse_array`: Randomly creates connections between individuals.
+   - `random_fill_status_array`: Sets initial infection status with random vaccination.
+   - `fill_status_array_with_super_spreaders`: Sets initial infection status with super spreaders.
+   - `fill_connect_amount`: Calculates connection counts.
+   - `fill_super_spreaders`: Identifies super spreaders based on connections.
+3. **Save to CSV**: `save_results_to_csv` saves the simulation results in a structured CSV file.
+
+### Execution
+The `if __name__ == "__main__": main()` line ensures that the `main` function runs when the script is executed directly.
+
+This code simulates infection spread in a population using different methods and compares their effectiveness by analyzing the percentage of zero infection trials and stable infection counts.
