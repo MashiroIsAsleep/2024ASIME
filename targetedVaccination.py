@@ -6,7 +6,7 @@ from tqdm import tqdm
 # Time complexity: O(trials * n^2)
 
 def main():
-    trials = 1  # Parameter: how many times the simulation should run 
+    trials = 200  # Parameter: how many times the simulation should run 
 
     # Run the simulation using the top 5% super spreaders method
     result = run_super_spreaders(trials, "super_spreaders.csv")
@@ -31,7 +31,7 @@ def run_random_vaccination(trials, vaccination_percentage, filename):
 # Method of running the simulation multiple times and obtain key data
 def run_trials(trials, filename, method, vaccination_percentage):
     n = 500
-    transmission_chance, recovery_chance, connection_forming_chance = 0.3, 0.1, 0.05  # Parameters: transmission chance, recovery chance, connection forming chance
+    transmission_chance, recovery_chance, connection_forming_chance = 0.2, 0.1, 0.03  # Parameters: transmission chance, recovery chance, connection forming chance
 
     end_in_zero_count = 0
     # Array used to calculate the stable position of the infection given parameters
