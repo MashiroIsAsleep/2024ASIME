@@ -4,8 +4,17 @@ from tqdm import tqdm
 
 
 def main():
-    trials = 100  
-    print(run_super_spreaders(trials))
+    
+    #Run the simulation using the top 5% super spreaders method
+    # trials = 100  
+    # print(run_super_spreaders(trials))
+    
+    #Run the simulation using the random vaccination method
+    trials = 100
+    vaccination_percentage = 0.5
+    print(run_random_vaccination(trials, vaccination_percentage))
+    
+    #below are initializations might be useful for later
     # n = 100
     # vaccination_percentage = 0.5
     # transmission_chance = 0.1
@@ -69,6 +78,31 @@ def run_super_spreaders(trials):
             end_in_zero_count += 1
     return end_in_zero_count / trials * 100
     
+def run_random_vaccination(trials, vaccination_percentage):
+    n = 100
+    transmission_chance = 0.1
+    recovery_chance = 0.1
+    connection_forming_chance = .5
+    
+    previous_status = np.zeros(n, dtype=int)
+    connect_amount = np.zeros(n, dtype=int)
+    
+    intercourse_chart = np.zeros((n, n), dtype=int)
+
+    fill_intercourse_array(intercourse_chart, n, connection_forming_chance)
+    fill_connect_amount(connect_amount, n, intercourse_chart)
+    random_fill_status_array(previous_status, n, vaccination_percentage)
+    
+    end_in_zero_count = 0
+    for _ in tqdm(range(trials), desc="Running Trials"):
+        infection_counts = run_simulation(transmission_chance, recovery_chance,
+                                          intercourse_chart, previous_status, n) 
+        if infection_counts[-1] == 0:
+            end_in_zero_count += 1
+    return end_in_zero_count / trials * 100
+
+
+
 def run_simulation(transmission_chance, recovery_chance, intercourse_chart,
                    previous_status, n):
     infection_counts = []
