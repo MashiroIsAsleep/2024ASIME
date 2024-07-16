@@ -17,24 +17,24 @@ def main():
 
     # Fill the intercourse chart
     fill_intercourse_array(intercourse_chart, n, connection_forming_chance)
-    print_array(intercourse_chart, n)
+    #print_array(intercourse_chart, n)
 
     # Fill the status array
-    fill_status_array(previous_status, n, vaccination_percentage)
-    print_array(previous_status, n)
+    random_fill_status_array(previous_status, n, vaccination_percentage)
+    #print_array(previous_status, n)
 
     # Fill the connect amount array
     fill_connect_amount(connect_amount, n, intercourse_chart)
-    print_array(connect_amount, n)
+    #print_array(connect_amount, n)
 
     # Fill the super spreaders array
     fill_super_spreaders(super_spreaders, n, connect_amount)
-    print_array(super_spreaders, n)
+    #print_array(super_spreaders, n)
     
     # Run the simulation
     infection_counts = run_simulation(transmission_chance, recovery_chance,
                                       intercourse_chart, previous_status, n)
-    print(infection_counts)
+    #print(infection_counts)
 
 
 def run_simulation(transmission_chance, recovery_chance, intercourse_chart,
@@ -92,7 +92,7 @@ def fill_intercourse_array(array, n, connection_forming_chance):
                 array[i][j] = 0
 
 
-def fill_status_array(array, n, vaccination_percentage):
+def random_fill_status_array(array, n, vaccination_percentage):
     vaccination_count = round(vaccination_percentage * n)
     array.fill(0)  # Ensure array is initialized with zeros
     count = 0
@@ -108,6 +108,15 @@ def fill_status_array(array, n, vaccination_percentage):
             array[index] = 1
             break
 
+def fill_status_array_with_super_spreaders(array, n, super_spreaders):
+    for i in range(n):
+        if super_spreaders[i] == 1:
+            array[i] = -1
+    while True:
+        index = random.randint(0, n - 1)
+        if array[index] != -1:
+            array[index] = 1
+            break 
 
 def fill_connect_amount(array, n, intercourse_chart):
     for i in range(n):
