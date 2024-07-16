@@ -3,8 +3,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+#Time complexity: O(trials * n^2)
 def main():
-    trials = 1000
+    trials = 1000 #Parameter: how many times the simulation should run 
 
     # Run the simulation using the top 5% super spreaders method
     result = run_super_spreaders(trials, "super_spreaders.csv")
@@ -13,7 +14,7 @@ def main():
     print(f"Average number of infected people during the stable phase: {result[2]}")
 
     # Run the simulation using the random vaccination method
-    result = run_random_vaccination(trials, 0.5, "random_vaccination.csv")
+    result = run_random_vaccination(trials, 0.5, "random_vaccination.csv") #Parameter: percentage of population to vaccinate
     print(f"Random Vaccination Method:")
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
     print(f"Average number of infected people during the stable phase: {result[2]}")
@@ -21,7 +22,7 @@ def main():
 #method of running the simulation using the top 5% super spreaders method
 def run_super_spreaders(trials, filename):
     n = 100
-    transmission_chance, recovery_chance, connection_forming_chance = 0.1, 0.1, 0.5
+    transmission_chance, recovery_chance, connection_forming_chance = 0.1, 0.1, 0.5 #Parameters: transmission chance, recovery chance, connection forming chance
 
     previous_status = np.zeros(n, dtype=int)
     connect_amount = np.zeros(n, dtype=int)
@@ -38,7 +39,7 @@ def run_super_spreaders(trials, filename):
 #method of running the simulation using the random vaccination method
 def run_random_vaccination(trials, vaccination_percentage, filename):
     n = 100
-    transmission_chance, recovery_chance, connection_forming_chance = 0.1, 0.1, 0.5
+    transmission_chance, recovery_chance, connection_forming_chance = 0.1, 0.1, 0.5 #Parameters: transmission chance, recovery chance, connection forming chance
 
     previous_status = np.zeros(n, dtype=int)
     connect_amount = np.zeros(n, dtype=int)
@@ -83,7 +84,7 @@ def run_trials(trials, transmission_chance, recovery_chance, intercourse_chart, 
 #method for each iteration
 def run_simulation(transmission_chance, recovery_chance, intercourse_chart, previous_status, n):
     infection_counts = []
-    max_day = 1000
+    max_day = 1000 #Parameter: maximum number of days in a single simulation
     current_status = np.zeros(n, dtype=int)
 
     for day in range(1, max_day + 1):
