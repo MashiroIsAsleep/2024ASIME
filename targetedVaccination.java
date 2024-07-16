@@ -10,7 +10,7 @@ public class targetedVaccination {
         double connectionFormingChance = 1;
 
         int previousStatus[] = new int[n];
-
+        int connectionNumber[] = new int[n];
         int intercourseChart[][] = new int[n][n];
 
         // Fill the intercourse chart
@@ -99,6 +99,7 @@ public class targetedVaccination {
         }
     }
 
+    
     public static void fillStatusArray(int[] array, int n, double vaccinationPercentage) {
         Random rand = new Random();
         int vaccinationCount = (int) Math.round(vaccinationPercentage * n);
