@@ -1,4 +1,6 @@
 # 2024ASIME
-Documentation of what I wrote over the course of 2024ASIME, gonna be a lot of random files. 
+Documentation of what I wrote over the course of 2024ASIME, main file is targetedVaccination.py
 
-I am pretty sure no one is gonna be bothered to run any of those files. I dont think I used and non standard libraries tho. 
+Enviornment requires numpy, pandas, tqdm
+
+Time complexity is O(trials*n^2), so dont set the trial number too high.
