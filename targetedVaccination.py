@@ -31,7 +31,7 @@ def run_random_vaccination(trials, vaccination_percentage, filename):
 # Method of running the simulation multiple times and obtain key data
 def run_trials(trials, filename, method, vaccination_percentage):
     n = 500
-    transmission_chance, recovery_chance, connection_forming_chance = 0.2, 0.1, 0.03  # Parameters: transmission chance, recovery chance, connection forming chance
+    transmission_chance, recovery_chance, connection_forming_chance = 0.2, 0.2127659574, 0.03  # Parameters: transmission chance, recovery chance, connection forming chance
 
     end_in_zero_count = 0
     # Array used to calculate the stable position of the infection given parameters
