@@ -3,8 +3,48 @@ import numpy as np
 
 
 def main():
+    trials = 100  
+    print(run_super_spreaders(trials))
+    # n = 100
+    # vaccination_percentage = 0.5
+    # transmission_chance = 0.1
+    # recovery_chance = 0.1
+    # connection_forming_chance = .5
+    
+    # previous_status = np.zeros(n, dtype=int)
+    # connect_amount = np.zeros(n, dtype=int)
+    # super_spreaders = np.zeros(n, dtype=int)
+    
+    # intercourse_chart = np.zeros((n, n), dtype=int)
+
+    # Fill the intercourse chart
+    #fill_intercourse_array(intercourse_chart, n, connection_forming_chance)
+    #print_array(intercourse_chart, n)
+
+    # Fill the status array randomly
+    #random_fill_status_array(previous_status, n, vaccination_percentage)
+    #print_array(previous_status, n)
+    
+    #vaccinate the top 5% superspreaders
+    #fill_status_array_with_super_spreaders(previous_status, n, super_spreaders) 
+    #print_array(previous_status, n)
+    
+    # Fill the connect amount array
+    #fill_connect_amount(connect_amount, n, intercourse_chart)
+    #print_array(connect_amount, n)
+
+    # Fill the super spreaders array
+    #fill_super_spreaders(super_spreaders, n, connect_amount)
+    #print_array(super_spreaders, n)
+    
+    # Run the simulation
+    #infection_counts = run_simulation(transmission_chance, recovery_chance,
+    #                                  intercourse_chart, previous_status, n)
+    #print(infection_counts)
+
+
+def run_super_spreaders(trials):
     n = 100
-    vaccination_percentage = 0.5
     transmission_chance = 0.1
     recovery_chance = 0.1
     connection_forming_chance = .5
@@ -15,28 +55,19 @@ def main():
     
     intercourse_chart = np.zeros((n, n), dtype=int)
 
-    # Fill the intercourse chart
     fill_intercourse_array(intercourse_chart, n, connection_forming_chance)
-    #print_array(intercourse_chart, n)
-
-    # Fill the status array
-    random_fill_status_array(previous_status, n, vaccination_percentage)
-    #print_array(previous_status, n)
-
-    # Fill the connect amount array
     fill_connect_amount(connect_amount, n, intercourse_chart)
-    #print_array(connect_amount, n)
-
-    # Fill the super spreaders array
     fill_super_spreaders(super_spreaders, n, connect_amount)
-    #print_array(super_spreaders, n)
+    fill_status_array_with_super_spreaders(previous_status, n, super_spreaders)  
     
-    # Run the simulation
-    infection_counts = run_simulation(transmission_chance, recovery_chance,
-                                      intercourse_chart, previous_status, n)
-    #print(infection_counts)
-
-
+    end_in_zero_count = 0
+    for _ in range(trials):
+        infection_counts = infection_counts = run_simulation(transmission_chance, recovery_chance,
+                                      intercourse_chart, previous_status, n) 
+        if infection_counts[-1] == 0:
+            end_in_zero_count += 1
+    return end_in_zero_count / trials * 100
+    
 def run_simulation(transmission_chance, recovery_chance, intercourse_chart,
                    previous_status, n):
     infection_counts = []

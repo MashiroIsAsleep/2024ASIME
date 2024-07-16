@@ -1,0 +1,5 @@
+{
+    "diffEditor.renderSideBySide": true,
+    "diffEditor.renderMarginRevertIcon": false,
+    "diffEditor.useInlineViewWhenSpaceIsLimited": false
+}
