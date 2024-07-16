@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from tqdm import tqdm
 
 
 def main():
@@ -61,9 +62,9 @@ def run_super_spreaders(trials):
     fill_status_array_with_super_spreaders(previous_status, n, super_spreaders)  
     
     end_in_zero_count = 0
-    for _ in range(trials):
-        infection_counts = infection_counts = run_simulation(transmission_chance, recovery_chance,
-                                      intercourse_chart, previous_status, n) 
+    for _ in tqdm(range(trials), desc="Running Trials"):
+        infection_counts = run_simulation(transmission_chance, recovery_chance,
+                                          intercourse_chart, previous_status, n) 
         if infection_counts[-1] == 0:
             end_in_zero_count += 1
     return end_in_zero_count / trials * 100
