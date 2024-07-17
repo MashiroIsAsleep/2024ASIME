@@ -1,6 +1,6 @@
 import random
-import numpy as np
 import pandas as pd
+import numpy as np
 from tqdm import tqdm
 
 # Time complexity: O(trials * n^2)
@@ -15,7 +15,7 @@ def main():
     print(f"Average number of infected people during the stable phase: {result[2]}")
 
     # Run the simulation using the random vaccination method
-    result = run_random_vaccination(trials, 0.04, "random_vaccination.csv")  # Parameter: percentage of population to vaccinate
+    result = run_random_vaccination(trials, 0.02, "random_vaccination.csv")  # Parameter: percentage of population to vaccinate
     print(f"Random Vaccination Method:")
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
     print(f"Average number of infected people during the stable phase: {result[2]}")
