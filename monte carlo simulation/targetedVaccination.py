@@ -3,30 +3,22 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from joblib import Parallel, delayed
-import matplotlib.pyplot as plt
 
 def main():
-    trials = 500  # Parameter: how many times the simulation should run
+    trials = 500
 
-    # Run the simulation using the top 5% super spreaders method
     result = run_super_spreaders(trials, "super_spreaders.csv")
     print(f"Super Spreaders Method:")
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
     print(f"Average number of infected people during the stable phase: {result[2]}")
 
-    # Run the simulation using the random vaccination method
-    vaccination_percentages = [i * 0.005 for i in range(21)]  # 0% to 10%
-    results = []
-    for p in vaccination_percentages:
+    for i in range(50):
+        p = i * 0.005
         filename = f"random_vaccination_{p*100:.2f}.csv"
         result = run_random_vaccination(trials, p, filename)
-        results.append((p, result[0], result[2]))
         print(f"Random Vaccination Method for {p*100:.2f}% of the population:")
         print(f"Percentage of trials ending in zero infections: {result[0]}%")
         print(f"Average number of infected people during the stable phase: {result[2]}")
-
-    # Plot the results
-    plot_results(vaccination_percentages, results)
 
 def run_super_spreaders(trials, filename):
     return run_trials(trials, filename, method="super_spreaders", vaccination_percentage=0)
@@ -36,7 +28,7 @@ def run_random_vaccination(trials, vaccination_percentage, filename):
 
 def run_trials(trials, filename, method, vaccination_percentage):
     n = 500
-    transmission_chance, recovery_chance, connection_forming_chance = 0.20, 0.1, 0.03
+    transmission_chance, recovery_chance, connection_forming_chance = 0.5, 0.2, 0.02
 
     end_in_zero_count = 0
     stable_infections = []
@@ -133,19 +125,36 @@ def apply_kalman_filter(data):
     return np.mean(xhat[-10:])
 
 def fill_intercourse_array(array, n, connection_forming_chance):
-    for i in range(n):
-        if i < 200:
-            # Initially connect the first few nodes to each other to seed the network
-            for j in range(i):
-                array[i, j] = 1
-        else:
-            # Preferential attachment: nodes with more connections are more likely to receive new connections
-            target_nodes = np.random.choice(range(i), size=int(connection_forming_chance * i), replace=True)
-            for j in target_nodes:
-                array[i, j] = 1
-    for i in range(n):
-        for j in range(i):
-            array[j, i] = array[i, j]
+    def generate_connections(node):
+        target_count = int(np.clip(
+            np.random.normal(loc=connection_forming_chance * n / 2, scale=connection_forming_chance * n / 10),
+            0, n - 1
+        ))
+        if target_count > 0:
+            target_nodes = np.random.choice(np.delete(np.arange(n), node), size=target_count, replace=False)
+            array[node, target_nodes] = 1
+            array[target_nodes, node] = 1
+
+
+    def add_extra_connections(node):
+        extra_multiplier = np.random.uniform(1.5, 2.0)
+        extra_connections = int(np.clip(
+            np.random.normal(loc=connection_forming_chance * n * extra_multiplier, scale=connection_forming_chance * n * 0.25),
+            0, n - 1
+        ))
+        if extra_connections > 0:
+            target_nodes = np.random.choice(np.delete(np.arange(n), node), size=extra_connections, replace=False)
+            array[node, target_nodes] = 1
+            array[target_nodes, node] = 1
+
+    # Generate base connections in parallel
+    Parallel(n_jobs=-1)(delayed(generate_connections)(i) for i in range(n))
+
+    extra_connections_count = random.randint(8, 13)  
+    extra_nodes = np.random.choice(range(n), size=extra_connections_count, replace=False)
+
+    Parallel(n_jobs=-1)(delayed(add_extra_connections)(node) for node in extra_nodes)
+
 
 def random_fill_status_array(array, n, vaccination_percentage):
     vaccination_count = round(vaccination_percentage * n)
@@ -181,28 +190,6 @@ def save_results_to_csv(results, filename):
             })
     df = pd.DataFrame(data)
     df.to_csv(filename, index=False)
-
-def plot_results(vaccination_percentages, results):
-    percentages = [result[0] for result in results]
-    end_in_zero = [result[1] for result in results]
-    stable_avg = [result[2] for result in results]
-
-    plt.figure(figsize=(10, 5))
-    
-    plt.subplot(1, 2, 1)
-    plt.plot(percentages, end_in_zero, marker='o')
-    plt.xlabel('Vaccination Percentage')
-    plt.ylabel('Percentage of Trials Ending in Zero Infections')
-    plt.title('Zero Infection Trials vs. Vaccination Percentage')
-
-    plt.subplot(1, 2, 2)
-    plt.plot(percentages, stable_avg, marker='o')
-    plt.xlabel('Vaccination Percentage')
-    plt.ylabel('Average Number of Infected People (Stable Phase)')
-    plt.title('Average Infected People vs. Vaccination Percentage')
-
-    plt.tight_layout()
-    plt.show()
 
 if __name__ == "__main__":
     main()
