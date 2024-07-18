@@ -5,7 +5,7 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 
 def main():
-    trials = 500
+    trials = 300
 
     result = run_super_spreaders(trials, "super_spreaders.csv")
     print(f"Super Spreaders Method:")
@@ -28,7 +28,7 @@ def run_random_vaccination(trials, vaccination_percentage, filename):
 
 def run_trials(trials, filename, method, vaccination_percentage):
     n = 500
-    transmission_chance, recovery_chance, connection_forming_chance = 0.5, 0.2, 0.02
+    transmission_chance, recovery_chance, connection_forming_chance = 0.5, 0.15, 0.02
 
     end_in_zero_count = 0
     stable_infections = []
