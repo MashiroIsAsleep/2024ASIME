@@ -4,6 +4,8 @@ import numpy as np
 from tqdm import tqdm
 from joblib import Parallel, delayed
 
+#If running on a mac, make sure maximize fan speed via mac fan control app
+
 def main():
     trials = 300
 
