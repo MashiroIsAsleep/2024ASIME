@@ -2,11 +2,12 @@ import random
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from joblib import Parallel, delayed
 
 # Time complexity: O(trials * n^2)
 
 def main():
-    trials = 200  # Parameter: how many times the simulation should run 
+    trials = 100  # Parameter: how many times the simulation should run 
 
     # Run the simulation using the top 5% super spreaders method
     result = run_super_spreaders(trials, "super_spreaders.csv")
@@ -15,10 +16,13 @@ def main():
     print(f"Average number of infected people during the stable phase: {result[2]}")
 
     # Run the simulation using the random vaccination method
-    result = run_random_vaccination(trials, 0.02, "random_vaccination.csv")  # Parameter: percentage of population to vaccinate
-    print(f"Random Vaccination Method:")
-    print(f"Percentage of trials ending in zero infections: {result[0]}%")
-    print(f"Average number of infected people during the stable phase: {result[2]}")
+    for i in range(25):
+        p = i * 0.02
+        filename = f"random_vaccination_{p*100:.2f}.csv"
+        result = run_random_vaccination(trials, p, filename)
+        print(f"Random Vaccination Method for {p*100:.2f}% of the population:")
+        print(f"Percentage of trials ending in zero infections: {result[0]}%")
+        print(f"Average number of infected people during the stable phase: {result[2]}")
 
 # Method of running the simulation using the top 5% super spreaders method
 def run_super_spreaders(trials, filename):
@@ -38,34 +42,15 @@ def run_trials(trials, filename, method, vaccination_percentage):
     stable_infections = []
     results = []
 
-    # Progress bar
-    for trial in tqdm(range(trials), desc="Running Trials"):
-        previous_status = np.zeros(n, dtype=int)
-        connect_amount = np.zeros(n, dtype=int)
-        super_spreaders = np.zeros(n, dtype=int)
-        intercourse_chart = np.zeros((n, n), dtype=int)
+    # Parallel processing of trials
+    trial_results = Parallel(n_jobs=-1)(delayed(run_single_trial)(trial, n, transmission_chance, recovery_chance, connection_forming_chance, method, vaccination_percentage) for trial in tqdm(range(trials), desc="Running Trials"))
 
-        fill_intercourse_array(intercourse_chart, n, connection_forming_chance)
-        fill_connect_amount(connect_amount, n, intercourse_chart)
-
-        if method == "super_spreaders":
-            fill_super_spreaders(super_spreaders, n, connect_amount)
-            fill_status_array_with_super_spreaders(previous_status, n, super_spreaders)
-        elif method == "random_vaccination":
-            random_fill_status_array(previous_status, n, vaccination_percentage)
-
-        infection_counts = run_simulation(transmission_chance, recovery_chance, intercourse_chart, previous_status, n)
-        trial_result = {
-            "trial": trial + 1,
-            "end_in_zero": infection_counts[-1] == 0,
-            "daily_infections": infection_counts
-        }
-        if infection_counts[-1] == 0:
+    for trial_result in trial_results:
+        results.append(trial_result)
+        if trial_result["end_in_zero"]:
             end_in_zero_count += 1
         else:
-            # Apply Kalman filter to filter out the noise
-            stable_infections.append(apply_kalman_filter(infection_counts))
-        results.append(trial_result)
+            stable_infections.append(apply_kalman_filter(trial_result["daily_infections"]))
 
     stable_avg = np.mean(stable_infections) if stable_infections else 0
     end_in_zero_percentage = end_in_zero_count / trials * 100
@@ -75,18 +60,41 @@ def run_trials(trials, filename, method, vaccination_percentage):
 
     return end_in_zero_percentage, results[0]['daily_infections'], stable_avg
 
+def run_single_trial(trial, n, transmission_chance, recovery_chance, connection_forming_chance, method, vaccination_percentage):
+    previous_status = np.zeros(n, dtype=int)
+    connect_amount = np.zeros(n, dtype=int)
+    super_spreaders = np.zeros(n, dtype=int)
+    intercourse_chart = np.zeros((n, n), dtype=int)
+
+    fill_intercourse_array(intercourse_chart, n, connection_forming_chance)
+    fill_connect_amount(connect_amount, n, intercourse_chart)
+
+    if method == "super_spreaders":
+        fill_super_spreaders(super_spreaders, n, connect_amount)
+        fill_status_array_with_super_spreaders(previous_status, n, super_spreaders)
+    elif method == "random_vaccination":
+        random_fill_status_array(previous_status, n, vaccination_percentage)
+
+    infection_counts = run_simulation(transmission_chance, recovery_chance, intercourse_chart, previous_status, n)
+    trial_result = {
+        "trial": trial + 1,
+        "end_in_zero": infection_counts[-1] == 0,
+        "daily_infections": infection_counts
+    }
+    return trial_result
+
 # Method for each iteration
 def run_simulation(transmission_chance, recovery_chance, intercourse_chart, previous_status, n):
     infection_counts = []
     max_day = 200  # Parameter: maximum number of days in a single simulation
-    current_status = np.zeros(n, dtype=int)
+    current_status = previous_status.copy()
 
     for day in range(1, max_day + 1):
         all_recovered = True
-        current_status[:] = previous_status
+
         for i in range(n):
             for j in range(i):
-                if intercourse_chart[i, j] == 1 and previous_status[i] != previous_status[j] and previous_status[i] != -1 and previous_status[j] != -1:
+                if intercourse_chart[i, j] == 1 and current_status[i] != current_status[j] and current_status[i] != -1 and current_status[j] != -1:
                     if random.random() < transmission_chance:
                         current_status[i] = current_status[j] = 1
 
