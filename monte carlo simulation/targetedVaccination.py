@@ -6,29 +6,29 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 
 def main():
-    trials = 10  # Number of trials for better parallelism
+    trials = 300  # Number of trials for better parallelism
     n = 500
-    transmission_chance, recovery_chance, connection_forming_chance = 0.5, 0.15, 0.02
+    transmission_chance, recovery_chance, connection_forming_chance = 0.5, 0.15, 0.024
 
     # Create results directory if it does not exist
     os.makedirs("results", exist_ok=True)
 
     # Run the simulation using the top 5% super spreaders method
-    result = run_trials_super_spreaders(trials, transmission_chance, recovery_chance, connection_forming_chance, n, "results/super_spreaders.csv")
+    result = run_trials_super_spreaders(trials, transmission_chance, recovery_chance, connection_forming_chance, n, "results/av12partner/super_spreaders.csv")
     print(f"Super Spreaders Method:")
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
-    
+
     # Run the simulation using the random vaccination method
     for i in range(30):
         p = i * 0.005
-        filename = f"results/random_vaccination_{p*100:.2f}.csv"
+        filename = f"results/av12partner/random_vaccination_{p*100:.2f}.csv"
         result = run_trials_random_vaccination(trials, transmission_chance, recovery_chance, connection_forming_chance, p, n, filename)
         print(f"Random Vaccination Method for {p*100:.2f}% of the population:")
         print(f"Percentage of trials ending in zero infections: {result[0]}%")
 
 def run_trials_super_spreaders(trials, transmission_chance, recovery_chance, connection_forming_chance, n, filename):
     # Using joblib to parallelize the trials
-    results = Parallel(n_jobs=-1)(delayed(run_single_trial_super_spreaders)(trial_num, transmission_chance, recovery_chance, connection_forming_chance, n) for trial_num in tqdm(range(1, trials + 1), desc="Running Trials"))
+    results = Parallel(n_jobs=-3)(delayed(run_single_trial_super_spreaders)(trial_num, transmission_chance, recovery_chance, connection_forming_chance, n) for trial_num in tqdm(range(1, trials + 1), desc="Running Trials"))
 
     end_in_zero_count = sum(1 for result in results if result['end_in_zero'])
     end_in_zero_percentage = end_in_zero_count / trials * 100
@@ -40,7 +40,7 @@ def run_trials_super_spreaders(trials, transmission_chance, recovery_chance, con
 
 def run_trials_random_vaccination(trials, transmission_chance, recovery_chance, connection_forming_chance, vaccination_percentage, n, filename):
     # Using joblib to parallelize the trials
-    results = Parallel(n_jobs=-1)(delayed(run_single_trial_random_vaccination)(trial_num, transmission_chance, recovery_chance, connection_forming_chance, vaccination_percentage, n) for trial_num in tqdm(range(1, trials + 1), desc="Running Trials"))
+    results = Parallel(n_jobs=-3)(delayed(run_single_trial_random_vaccination)(trial_num, transmission_chance, recovery_chance, connection_forming_chance, vaccination_percentage, n) for trial_num in tqdm(range(1, trials + 1), desc="Running Trials"))
 
     end_in_zero_count = sum(1 for result in results if result['end_in_zero'])
     end_in_zero_percentage = end_in_zero_count / trials * 100
