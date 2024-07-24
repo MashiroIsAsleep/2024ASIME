@@ -12,7 +12,7 @@ def main():
 
     # Create results directory if it does not exist
     os.makedirs("results", exist_ok=True)
-
+    
     # Run the simulation using the top 5% super spreaders method
     result = run_trials_super_spreaders(trials, transmission_chance, recovery_chance, connection_forming_chance, n, "results/av666partner/super_spreaders.csv")
     print(f"Super Spreaders Method:")
@@ -121,19 +121,19 @@ def fill_intercourse_array(array, n, connection_forming_chance):
     array[:] = (random_matrix < connection_forming_chance).astype(int)
     np.fill_diagonal(array, 0)
 
-def random_fill_status_array(array, n, vaccination_percentage):
-    vaccination_count = round(vaccination_percentage * n)
-    array.fill(0)
-    vaccinated_indices = np.random.choice(n, vaccination_count, replace=False)
-    array[vaccinated_indices] = -1
-    non_vaccinated_indices = np.setdiff1d(np.arange(n), vaccinated_indices)
-    array[np.random.choice(non_vaccinated_indices, 1)] = 1
+# def random_fill_status_array(array, n, vaccination_percentage):
+#     vaccination_count = round(vaccination_percentage * n)
+#     array.fill(0)
+#     vaccinated_indices = np.random.choice(n, vaccination_count, replace=False)
+#     array[vaccinated_indices] = -1
+#     non_vaccinated_indices = np.setdiff1d(np.arange(n), vaccinated_indices)
+#     array[np.random.choice(non_vaccinated_indices, 1)] = 1
 
-def fill_status_array_with_super_spreaders(array, n, super_spreaders):
-    array.fill(0)
-    array[super_spreaders == 1] = -1
-    non_super_spreaders_indices = np.where(super_spreaders == 0)[0]
-    array[np.random.choice(non_super_spreaders_indices, 1)] = 1
+# def fill_status_array_with_super_spreaders(array, n, super_spreaders):
+#     array.fill(0)
+#     array[super_spreaders == 1] = -1
+#     non_super_spreaders_indices = np.where(super_spreaders == 0)[0]
+#     array[np.random.choice(non_super_spreaders_indices, 1)] = 1
 
 def fill_super_spreaders(array, n, connect_amount):
     super_spreaders_count = round(0.05 * n)
