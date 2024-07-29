@@ -7,7 +7,7 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 
 def main():
-    trials = 300 
+    trials = 500 
     n = 500
     transmission_chance, recovery_chance, connection_forming_chance = 0.5, 0.15, 0.012  
     vaccination_duration = 50
