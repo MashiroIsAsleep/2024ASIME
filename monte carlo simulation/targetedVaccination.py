@@ -18,13 +18,12 @@ def main():
     print(f"Super Spreaders Method:")
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
 
-    # Uncomment to run the simulation using the random vaccination method
-    # for i in range(30):
-    #     p = + i * 0.005
-    #     filename = f"results/random_vaccination_{p*100:.2f}.csv"
-    #     result = run_trials(trials, transmission_chance, recovery_chance, connection_forming_chance, n, filename, vaccination_percentage=p, method="random_vaccination")
-    #     print(f"Random Vaccination Method for {p*100:.2f}% of the population:")
-    #     print(f"Percentage of trials ending in zero infections: {result[0]}%")
+    for i in range(30):
+        p = + i * 0.005
+        filename = f"results/random_vaccination_{p*100:.2f}.csv"
+        result = run_trials(trials, transmission_chance, recovery_chance, connection_forming_chance, n, filename, vaccination_percentage=p, method="random_vaccination")
+        print(f"Random Vaccination Method for {p*100:.2f}% of the population:")
+        print(f"Percentage of trials ending in zero infections: {result[0]}%")
 
 def run_trials(trials, transmission_chance, recovery_chance, connection_forming_chance, n, filename, method="super_spreaders", vaccination_percentage=0):
     results = Parallel(n_jobs=-1)(delayed(run_single_trial)(trial_num, transmission_chance, recovery_chance, connection_forming_chance, n, method, vaccination_percentage) for trial_num in tqdm(range(1, trials + 1), desc="Running Trials"))
