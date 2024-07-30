@@ -7,8 +7,8 @@ from joblib import Parallel, delayed
 
 def main():
     trials = 300  # Number of trials for better parallelism
-    n = 500
-    transmission_chance, recovery_chance, connection_forming_chance = 0.005, 0.15, 0.008
+    n = 1000
+    transmission_chance, recovery_chance, connection_forming_chance = 0.05/1.5, 0.15, 0.004*1.5
 
     # Create results directory if it does not exist
     os.makedirs("results", exist_ok=True)
@@ -18,7 +18,7 @@ def main():
     # print(f"Super Spreaders Method:")
     # print(f"Percentage of trials ending in zero infections: {result[0]}%")
 
-    filename = "results/0.5%transmission.csv"
+    filename = "results/test6.csv"
     p = 0
     result = run_trials(trials, transmission_chance, recovery_chance, connection_forming_chance, n, filename, vaccination_percentage=p, method="random_vaccination")
     print(f"Percentage of trials ending in zero infections: {result[0]}%")
@@ -63,7 +63,7 @@ def run_single_trial(trial_num, transmission_chance, recovery_chance, connection
 
 def run_simulation(transmission_chance, recovery_chance, intercourse_chart, previous_status, n):
     infection_counts = []
-    max_day = 200
+    max_day = 50
 
     for day in range(1, max_day + 1):
         current_status = previous_status.copy()
