@@ -100,7 +100,7 @@ def run_simulation(vaccination_duration, vaccination_counters, super_spreaders, 
 
         daily_vaccinated_counts.append(daily_vaccination_count)
         
-        #waning immunity
+        #definitive waning immunity
         for person in vaccination_counters:
             if previous_status[person] == -1:
                 vaccination_counters[person] += 1
@@ -108,7 +108,16 @@ def run_simulation(vaccination_duration, vaccination_counters, super_spreaders, 
                     current_status[person] = 0
                     vaccination_counters[person] = 0
                     vaccinated_count -= 1
-
+                    
+        #waning immnunity by chance
+        #change vaccination duration to chance of immunity wanning every day, range [0,1]
+        # for person in vaccination_counters:
+        #     if previous_status[person] == -1:
+        #         vaccination_counters[person] = np.random.rand()
+        #         if vaccination_counters[person] >= vaccination_duration:
+        #             current_status[person] = 0
+        #             vaccinated_count -= 1
+                    
         infected_count = np.sum(current_status == 1)
         infection_counts.append(infected_count)
 
